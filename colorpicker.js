@@ -2,16 +2,14 @@
 
 document.addEventListener("DOMContentLoaded", init);
 let img;
-let ctx = document.getElementById(`imageCanvas`).getContext(`2d`);
+const ctx = document.querySelector(`#imageCanvas`).getContext(`2d`);
 let colorInfo;
-let x;
-let y;
 let myImageData;
 let width = 500;
 let height = 600;
 
 function init() {
-  // load billede
+  // load img
   img = new Image();
   img.addEventListener("load", imgLoaded);
   img.src = "cat.jpg";
@@ -20,25 +18,24 @@ function init() {
 function imgLoaded() {
   ctx.drawImage(img, 0, 0);
 
-  dataGetter();
-  mouseMoved();
+  myImageData = getImageData();
+  registerMouseMove();
 }
 
-function mouseMoved() {
+function registerMouseMove() {
   colorInfo = document.querySelector("#imageCanvas");
-  colorInfo.addEventListener("mousemove", logKey);
+  colorInfo.addEventListener("mousemove", mouseMoved);
 }
-function logKey(e) {
-  x = e.offsetX;
-  y = e.offsetY;
+function mouseMoved(e) {
+  const x = e.offsetX;
+  const y = e.offsetY;
   console.log(e);
   console.log(x, y);
   const rgb = getColorAtPixel(x, y);
   showColorInfo(rgb);
 
   ctx.putImageData(myImageData, 0, 0);
-  getFirkantOnCursor();
-  getColorAtPixel(x, y);
+  drawRectangle(x, y);
 }
 
 function getColorAtPixel(x, y) {
@@ -50,20 +47,14 @@ function getColorAtPixel(x, y) {
   return { r, g, b };
 }
 
-function getFirkantOnCursor() {
-  let canvas = document.getElementById("imageCanvas");
-  if (canvas.getContext) {
-    let ctx = canvas.getContext("2d");
-
-    ctx.strokeStyle = "green";
-    ctx.strokeRect(x - 5, y - 5, 10, 10);
-    // ctx.moveTo(x, y);
-  }
+function drawRectangle(x, y) {
+  ctx.strokeStyle = "green";
+  ctx.strokeRect(x - 5, y - 5, 10, 10);
+  // ctx.moveTo(x, y);
 }
 
-function dataGetter() {
-  console.log(myImageData);
-  myImageData = ctx.getImageData(0, 0, 500, 600);
+function getImageData() {
+  return ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
 }
 
 // 🎁 Here you go! 🎁
