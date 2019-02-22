@@ -3,10 +3,13 @@
 document.addEventListener("DOMContentLoaded", init);
 let img;
 const ctx = document.querySelector(`#imageCanvas`).getContext(`2d`);
+const zoomCtx = document.querySelector(`#zoomCanvas`).getContext(`2d`);
 let colorInfo;
 let myImageData;
 let width = 500;
 let height = 600;
+
+let zoomData = null;
 
 function init() {
   // load img
@@ -16,10 +19,21 @@ function init() {
 }
 
 function imgLoaded() {
+  // const width = ctx.canvas.width;
+  // const height = ctx.canvas.height;
   ctx.drawImage(img, 0, 0);
 
   myImageData = getImageData();
   registerMouseMove();
+  createZoomData();
+}
+
+function createZoomData() {
+  zoomData = ctx.createImageData(10, 10);
+}
+
+function showZoomData() {
+  zoomCtx.putImageData(zoomData, 0, 0);
 }
 
 function registerMouseMove() {
@@ -36,6 +50,9 @@ function mouseMoved(e) {
 
   ctx.putImageData(myImageData, 0, 0);
   drawRectangle(x, y);
+
+  copyPixels(x, y);
+  showZoomData();
 }
 
 function getColorAtPixel(x, y) {
@@ -73,8 +90,23 @@ function showColorInfo(rgb) {
 
   document.querySelector("#colorbox").style.backgroundColor = hex;
 }
+// part 10
+function copyPixels(startX, startY) {
+  const w = zoomCtx.canvas.width;
+  const imageW = ctx.canvas.width;
 
-// pixelIndex = 4 *(x+y*width);
-// r = data [pixelIndex]
-// g = data [pixelIndex + 1]
-// b = data [pixelIndex + 2]
+  for (let y = 0; y < 10; y++) {
+    for (let x = 0; x < 10; x++) {
+      const pixelIndex = (x + y * w) * 4;
+
+      const imageX = startX + x;
+      const imageY = startY + y;
+
+      const imageIndex = (imageX + imageY * imageW) * 4;
+      zoomData.data[pixelIndex + 0] = myImageData.data[imageIndex + 0]; //red
+      zoomData.data[pixelIndex + 1] = myImageData.data[imageIndex + 1]; //green
+      zoomData.data[pixelIndex + 2] = myImageData.data[imageIndex + 2]; //blue
+      zoomData.data[pixelIndex + 3] = myImageData.data[imageIndex + 3]; //ALPHA
+    }
+  }
+}
